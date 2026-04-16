@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>LAM Campaign Monitor · Q2 2026 · adidas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;700&display=swap" rel="stylesheet"/>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  :root{
+    --bg:#FAFAFA;--surface:#FFFFFF;--border:#E5E7EB;--border-strong:#D1D5DB;
+    --text:#111827;--text-muted:#6B7280;--text-faint:#9CA3AF;
+    --accent:#000000;--accent-fg:#FFFFFF;
+    --warn-bg:#FFFBEB;--warn-border:#FCD34D;--warn-text:#92400E;
+    --danger-bg:#FEF2F2;--danger-border:#FCA5A5;--danger-text:#991B1B;
+    --success-bg:#F0FDF4;--success-text:#166534;
+    --radius:8px;--radius-lg:12px;
+  }
+  body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;min-height:100vh;}
+  
+  /* Layout */
+  .topbar{background:var(--accent);color:var(--accent-fg);padding:0 24px;height:52px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100;}
+  .topbar-brand{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;}
+  .topbar-sep{opacity:.3;font-size:18px;}
+  .topbar-title{font-size:13px;opacity:.7;letter-spacing:.04em;text-transform:uppercase;}
+  .topbar-badge{margin-left:auto;background:#EF4444;color:#fff;padding:3px 10px;border-radius:10px;font-size:12px;font-weight:600;display:none;}
+  
+  .sidebar{width:240px;flex-shrink:0;position:sticky;top:52px;height:calc(100vh - 52px);overflow-y:auto;border-right:1px solid var(--border);background:var(--surface);padding:16px 0;}
+  .main-content{flex:1;min-width:0;padding:24px;}
+  .layout{display:flex;}
+  
+  /* Sidebar sections */
+  .sb-section{padding:12px 16px;border-bottom:1px solid var(--border);}
+  .sb-label{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin-bottom:8px;}
+  .chip-group{display:flex;flex-direction:column;gap:2px;}
+  .chip{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:var(--radius);border:none;background:transparent;color:var(--text-muted);font-size:13px;cursor:pointer;font-family:'Barlow',sans-serif;width:100%;text-align:left;transition:background .1s;}
+  .chip:hover{background:#F3F4F6;}
+  .chip.on{background:var(--accent);color:var(--accent-fg);}
+  .chip .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .chip .count{margin-left:auto;font-size:11px;opacity:.6;}
+  
+  /* View toggle */
+  .view-tabs{display:flex;gap:1px;background:var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:20px;}
+  .view-tab{flex:1;padding:8px;border:none;background:transparent;color:var(--text-muted);font-size:13px;font-family:'Barlow',sans-serif;cursor:pointer;font-weight:500;transition:background .1s;}
+  .view-tab.on{background:var(--surface);color:var(--text);}
+  .view-tab:hover:not(.on){background:#F9FAFB;}
+  
+  /* Stats */
+  .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+  .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;}
+  .stat-label{font-size:11px;color:var(--text-muted);margin-bottom:6px;letter-spacing:.04em;text-transform:uppercase;font-weight:500;}
+  .stat-value{font-size:28px;font-weight:600;color:var(--text);font-family:'Barlow Condensed',sans-serif;letter-spacing:-.01em;}
+  .stat-card.warn{border-color:var(--warn-border);background:var(--warn-bg);}
+  .stat-card.warn .stat-label{color:var(--warn-text);}
+  .stat-card.warn .stat-value{color:var(--warn-text);}
+  
+  /* Alerts */
+  .alert-box{border-radius:var(--radius-lg);overflow:hidden;margin-bottom:20px;}
+  .alert-box.danger{border:1px solid var(--danger-border);}
+  .alert-box.warning{border:1px solid var(--warn-border);}
+  .alert-head{padding:10px 16px;display:flex;align-items:center;gap:10px;}
+  .alert-head.danger{background:var(--danger-bg);}
+  .alert-head.warning{background:var(--warn-bg);}
+  .alert-head-icon{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+  .alert-head-icon.danger{background:var(--danger-text);color:#fff;}
+  .alert-head-icon.warning{background:#D97706;color:#fff;}
+  .alert-head-text{font-size:13px;font-weight:600;color:var(--danger-text);}
+  .alert-head-text.warning{color:var(--warn-text);}
+  .alert-row{padding:9px 16px;border-top:1px solid;}
+  .alert-row.danger{border-color:var(--danger-border);background:#fff;}
+  .alert-row.warning{border-color:var(--warn-border);background:#fff;}
+  .alert-row-title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:3px;}
+  .alert-row-detail{font-size:11px;color:var(--text-muted);line-height:1.5;}
+  
+  /* List view */
+  .month-group{margin-bottom:28px;}
+  .month-heading{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;color:var(--text);padding-bottom:10px;border-bottom:2px solid var(--accent);margin-bottom:12px;}
+  .event-card{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:6px;transition:border-color .15s;}
+  .event-card:hover{border-color:var(--border-strong);}
+  .event-stripe{width:4px;border-radius:2px;align-self:stretch;flex-shrink:0;}
+  .event-name{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px;}
+  .event-meta{font-size:12px;color:var(--text-muted);}
+  .event-cat{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;}
+  .event-p{display:inline-flex;align-items:center;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;}
+  .event-p.p1{background:#111827;color:#fff;}
+  .event-p.p2{background:#F3F4F6;color:#374151;}
+  .event-right{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;}
+  
+  /* Timeline */
+  .timeline-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:20px;}
+  .timeline-header{padding:12px 16px;border-bottom:1px solid var(--border);background:#F9FAFB;}
+  .timeline-row{display:flex;align-items:stretch;border-bottom:1px solid var(--border);}
+  .timeline-row:last-child{border-bottom:none;}
+  .timeline-cat{width:130px;flex-shrink:0;font-size:11px;color:var(--text-muted);padding:8px 10px 8px 16px;text-align:right;display:flex;align-items:center;justify-content:flex-end;font-weight:500;}
+  .timeline-lane{flex:1;position:relative;border-left:1px solid var(--border);}
+  .timeline-month-header{display:flex;border-bottom:1px solid var(--border);background:#F9FAFB;}
+  .timeline-month-cell{font-size:11px;color:var(--text-muted);text-align:center;padding:5px 0;font-weight:600;letter-spacing:.06em;text-transform:uppercase;border-left:1px solid var(--border);}
+  .tbar{position:absolute;height:20px;border-radius:0 3px 3px 0;cursor:default;overflow:hidden;display:flex;align-items:center;}
+  .tbar-label{font-size:9px;font-weight:600;white-space:nowrap;padding:0 4px;overflow:hidden;}
+  
+  /* Weekly */
+  .week-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:8px;overflow:hidden;}
+  .week-card.conflict{border-color:var(--warn-border);}
+  .week-head{display:flex;align-items:center;gap:12px;padding:10px 16px;background:#F9FAFB;border-bottom:1px solid var(--border);}
+  .week-card.conflict .week-head{background:var(--warn-bg);border-color:var(--warn-border);}
+  .week-id{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--text);}
+  .week-dates{font-size:12px;color:var(--text-muted);}
+  .week-counts{font-size:12px;color:var(--text-muted);}
+  .week-flag{margin-left:auto;background:var(--warn-bg);border:1px solid var(--warn-border);color:var(--warn-text);padding:2px 10px;border-radius:10px;font-size:11px;font-weight:600;}
+  .week-body{padding:10px 16px;display:flex;flex-wrap:wrap;gap:5px;}
+  .event-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:10px;font-size:12px;font-weight:500;border:1px solid;}
+  
+  /* Mobile */
+  @media(max-width:768px){
+    .layout{flex-direction:column;}
+    .sidebar{width:100%;height:auto;position:static;border-right:none;border-bottom:1px solid var(--border);}
+    .chip-group{flex-direction:row;flex-wrap:wrap;}
+    .chip{width:auto;}
+    .stats-grid{grid-template-columns:repeat(2,1fr);}
+    .main-content{padding:16px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-brand">adidas</div>
+  <div class="topbar-sep">|</div>
+  <div class="topbar-title">LAM Campaign Monitor · Q2 2026</div>
+  <div id="ovlp-badge" class="topbar-badge"></div>
+</div>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sb-section">
+      <div class="sb-label">País</div>
+      <div class="chip-group" id="f-country"></div>
+    </div>
+    <div class="sb-section">
+      <div class="sb-label">Categoría</div>
+      <div class="chip-group" id="f-category"></div>
+    </div>
+    <div class="sb-section">
+      <div class="sb-label">Prioridad</div>
+      <div class="chip-group" id="f-priority"></div>
+    </div>
+    <div class="sb-section" style="border-bottom:none;">
+      <div class="sb-label">Leyenda</div>
+      <div id="legend" style="display:flex;flex-direction:column;gap:6px;margin-top:4px;"></div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+    <!-- View tabs -->
+    <div class="view-tabs">
+      <button class="view-tab on" data-v="list" onclick="setView('list')">Lista</button>
+      <button class="view-tab" data-v="weekly" onclick="setView('weekly')">Semanal</button>
+      <button class="view-tab" data-v="timeline" onclick="setView('timeline')">Timeline</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid" id="stats"></div>
+
+    <!-- Alerts -->
+    <div id="alerts"></div>
+
+    <!-- Content -->
+    <div id="content"></div>
+  </main>
+
+</div>
+
+<script>
+// ─── DATA ────────────────────────────────────────────────────────────────────
+const EV = [
+  {id:1,name:"2026 FIFA World Cup",co:["ALL"],cat:"Football",p:1,s:"2026-03-20",e:"2026-07-31"},
+  {id:2,name:"You Got This — Backyard Legend",co:["ALL"],cat:"Football",p:1,s:"2026-05-07",e:"2026-07-31"},
+  {id:3,name:"Brand Campaign WC2026",co:["ALL"],cat:"Cross-Category",p:1,s:"2026-05-30",e:"2026-06-30"},
+  {id:4,name:"Adiclub Days – Teaser",co:["ALL"],cat:"Membership",p:1,s:"2026-04-16",e:"2026-04-22"},
+  {id:5,name:"Adiclub Days – Promo",co:["ALL"],cat:"Membership",p:1,s:"2026-04-23",e:"2026-04-30"},
+  {id:6,name:"Mother's Day",co:["ALL"],cat:"Cross-Category",p:1,s:"2026-04-20",e:"2026-05-10"},
+  {id:7,name:"Father's Day",co:["AR","CO","MX","PE","LA"],cat:"Cross-Category",p:1,s:"2026-06-01",e:"2026-06-21"},
+  {id:8,name:"EOSS #2",co:["ALL"],cat:"Cross-Category",p:1,s:"2026-06-15",e:"2026-07-20"},
+  {id:9,name:"Move for the Planet",co:["ALL"],cat:"Running",p:1,s:"2026-05-12",e:"2026-05-12"},
+  {id:10,name:"Partner Activation Q2",co:["ALL"],cat:"Cross-Category",p:1,s:"2026-05-01",e:"2026-05-01"},
+  {id:11,name:"Bad Bunny – Ballerina",co:["ALL"],cat:"Statement",p:1,s:"2026-05-15",e:"2026-05-15"},
+  {id:12,name:"Bad Bunny – World Cup",co:["ALL"],cat:"Statement",p:1,s:"2026-07-01",e:"2026-07-15"},
+  {id:13,name:"F50 vs Predator",co:["ALL"],cat:"Football",p:1,s:"2026-07-09",e:"2026-07-09"},
+  {id:14,name:"SNM Third",co:["ALL"],cat:"Football",p:1,s:"2026-05-08",e:"2026-05-08"},
+  {id:15,name:"EDC Chen – Mundial Pack",co:["ALL"],cat:"Statement",p:1,s:"2026-05-01",e:"2026-05-01"},
+  {id:16,name:"Messi Pack #2 – Hora Dorada",co:["ALL"],cat:"Football",p:2,s:"2026-04-14",e:"2026-04-14"},
+  {id:17,name:"Wales Bonner Mainline",co:["AR","BR","CO","MX","PE","LA"],cat:"Originals/Skate",p:2,s:"2026-04-17",e:"2026-04-17"},
+  {id:18,name:"Willy Chavarria Drop #8",co:["ALL"],cat:"Statement",p:2,s:"2026-04-18",e:"2026-04-18"},
+  {id:19,name:"AE2 Easter Egg",co:["ALL"],cat:"Basketball",p:2,s:"2026-04-20",e:"2026-04-20"},
+  {id:20,name:"Audi Miami Pack",co:["AR","BR","CL","CO","MX","LA"],cat:"Motorsport",p:2,s:"2026-04-23",e:"2026-04-23"},
+  {id:21,name:"SPZL Mainline",co:["ALL"],cat:"Originals/Skate",p:2,s:"2026-04-24",e:"2026-04-24"},
+  {id:22,name:"Euro Bringbacks",co:["ALL"],cat:"Originals/Skate",p:2,s:"2026-05-26",e:"2026-05-26"},
+  {id:23,name:"Bayern Home",co:["ALL"],cat:"Football",p:2,s:"2026-05-05",e:"2026-05-05"},
+  {id:24,name:"AE2 Velocity Blue",co:["ALL"],cat:"Basketball",p:2,s:"2026-05-09",e:"2026-05-09"},
+  {id:25,name:"Roland Garros",co:["ALL"],cat:"SPSP",p:2,s:"2026-05-18",e:"2026-05-18"},
+  {id:26,name:"Liverpool Home",co:["ALL"],cat:"Football",p:2,s:"2026-05-19",e:"2026-05-19"},
+  {id:27,name:"Brain Dead Disney Drop",co:["ALL"],cat:"Statement",p:2,s:"2026-05-15",e:"2026-05-15"},
+  {id:28,name:"Pet Collection Drop #1",co:["ALL"],cat:"Originals/Skate",p:2,s:"2026-05-15",e:"2026-05-15"},
+  {id:29,name:"Road to Glory – WC Pack",co:["ALL"],cat:"Football",p:2,s:"2026-06-02",e:"2026-06-02"},
+  {id:30,name:"RM Home",co:["ALL"],cat:"Football",p:2,s:"2026-06-03",e:"2026-06-03"},
+  {id:31,name:"Messi Pack #3 – Ultimo Tango",co:["ALL"],cat:"Football",p:2,s:"2026-06-05",e:"2026-06-05"},
+  {id:32,name:"Coca Cola Drop #1",co:["ALL"],cat:"Statement",p:2,s:"2026-06-06",e:"2026-06-06"},
+  {id:33,name:"Mercedes Silver Arrows",co:["ALL"],cat:"Motorsport",p:2,s:"2026-06-08",e:"2026-06-08"},
+  {id:34,name:"Trasher x AFA",co:["ALL"],cat:"Football",p:2,s:"2026-06-01",e:"2026-06-01"},
+  {id:35,name:"Oasis Drop 2",co:["ALL"],cat:"Originals/Skate",p:2,s:"2026-06-01",e:"2026-06-15"},
+  {id:36,name:"Pharrell Yoga Vario #2",co:["ALL"],cat:"Statement",p:2,s:"2026-06-20",e:"2026-06-20"},
+  {id:37,name:"Blue Wonder Silverstone",co:["ALL"],cat:"Motorsport",p:2,s:"2026-06-23",e:"2026-06-23"},
+  {id:38,name:"Willy Chavarria – World Cup",co:["ALL"],cat:"Statement",p:2,s:"2026-06-15",e:"2026-06-15"},
+  {id:39,name:"BAPE Adizero EVO SL",co:["ALL"],cat:"Statement",p:2,s:"2026-06-15",e:"2026-06-30"},
+  {id:40,name:"CCM XModel Packs",co:["ALL"],cat:"Originals/Skate",p:2,s:"2026-06-15",e:"2026-06-30"},
+  {id:41,name:"Disney",co:["ALL"],cat:"Cross-Category",p:2,s:"2026-06-15",e:"2026-06-30"},
+  {id:42,name:"Freehiker",co:["ALL"],cat:"Outdoor",p:2,s:"2026-07-01",e:"2026-07-01"},
+  {id:43,name:"Climacool",co:["ALL"],cat:"Training",p:2,s:"2026-07-02",e:"2026-07-02"},
+  {id:44,name:"Trionda Finale",co:["ALL"],cat:"Football",p:2,s:"2026-07-07",e:"2026-07-07"},
+  {id:45,name:"Hyperboost",co:["ALL"],cat:"Running",p:2,s:"2026-07-01",e:"2026-07-31"},
+  {id:46,name:"Project Gigi Drop #1",co:["ALL"],cat:"Statement",p:2,s:"2026-07-01",e:"2026-07-15"},
+  {id:47,name:"EDC Chen Samba",co:["ALL"],cat:"Statement",p:2,s:"2026-07-01",e:"2026-07-15"},
+  {id:48,name:"Pharrell Jellyfish #4",co:["ALL"],cat:"Statement",p:2,s:"2026-07-01",e:"2026-07-15"},
+  {id:49,name:"Entire Studios",co:["ALL"],cat:"Originals/Skate",p:2,s:"2026-04-01",e:"2026-04-01"},
+  {id:50,name:"Summer Glow",co:["ALL"],cat:"Sportswear",p:2,s:"2026-05-01",e:"2026-05-01"},
+  {id:51,name:"Pharrell Yoga Vario #1",co:["ALL"],cat:"Statement",p:2,s:"2026-04-04",e:"2026-04-04"},
+  {id:52,name:"EDC Sawtooth Superstar",co:["ALL"],cat:"Statement",p:2,s:"2026-04-15",e:"2026-04-15"},
+  {id:53,name:"Heritage Pack",co:["ALL"],cat:"Originals/Skate",p:2,s:"2026-04-01",e:"2026-04-01"},
+  {id:54,name:"Color Icon",co:["ALL"],cat:"Originals/Skate",p:2,s:"2026-04-01",e:"2026-04-01"},
+  {id:55,name:"Xploric",co:["ALL"],cat:"Outdoor",p:2,s:"2026-04-02",e:"2026-04-02"},
+  {id:56,name:"CCM Campus Classic Street",co:["ALL"],cat:"Originals/Skate",p:2,s:"2026-04-06",e:"2026-04-06"},
+  {id:57,name:"Minecraft",co:["ALL"],cat:"Cross-Category",p:2,s:"2026-04-01",e:"2026-04-01"},
+  {id:58,name:"Optime (Apr)",co:["ALL"],cat:"Training",p:1,s:"2026-04-01",e:"2026-04-01"},
+  {id:59,name:"Optime (Jun)",co:["ALL"],cat:"Training",p:2,s:"2026-06-04",e:"2026-06-04"},
+  {id:60,name:"IBR – Drive RC",co:["ALL"],cat:"Motorsport",p:2,s:"2026-04-03",e:"2026-04-03"},
+  {id:61,name:"Pride",co:["CO","MX","PE"],cat:"Cross-Category",p:2,s:"2026-05-15",e:"2026-06-27"},
+  {id:62,name:"Hot Sale",co:["AR"],cat:"Promo",p:1,s:"2026-05-11",e:"2026-05-15"},
+  {id:63,name:"Black Friday (CO)",co:["CO"],cat:"Promo",p:1,s:"2026-05-25",e:"2026-05-31"},
+  {id:64,name:"Hot Sale (MX)",co:["MX"],cat:"Promo",p:1,s:"2026-05-25",e:"2026-05-29"},
+  {id:65,name:"Cyber WOW (PE)",co:["PE"],cat:"Promo",p:1,s:"2026-04-20",e:"2026-04-23"},
+  {id:66,name:"Cyber CL",co:["CL"],cat:"Promo",p:1,s:"2026-06-01",e:"2026-06-06"},
+  {id:67,name:"Dia dos Namorados",co:["BR"],cat:"Cross-Category",p:1,s:"2026-05-18",e:"2026-06-12"},
+  {id:68,name:"Lima 42K Marathon",co:["PE"],cat:"Running",p:1,s:"2026-05-11",e:"2026-05-25"},
+  {id:69,name:"Rio 42K Marathon",co:["BR"],cat:"Running",p:2,s:"2026-06-01",e:"2026-06-07"},
+  {id:70,name:"Bogota 21K Marathon",co:["CO"],cat:"Running",p:2,s:"2026-07-01",e:"2026-07-15"},
+  {id:71,name:"Mexico 21K Marathon",co:["MX"],cat:"Running",p:2,s:"2026-07-01",e:"2026-07-15"},
+  {id:72,name:"FMF Third & Someone Somewhere",co:["MX"],cat:"Football",p:1,s:"2026-05-11",e:"2026-05-11"},
+  {id:73,name:"Winter Start (South)",co:["AR","BR","CL"],cat:"Cross-Category",p:2,s:"2026-06-01",e:"2026-06-30"},
+  {id:74,name:"Minena MX",co:["MX"],cat:"Cross-Category",p:2,s:"2026-06-01",e:"2026-06-15"},
+  {id:75,name:"Class Drop 1 (BR)",co:["BR"],cat:"Statement",p:2,s:"2026-05-01",e:"2026-05-01"},
+  {id:76,name:"Class Drop 2 (BR)",co:["BR"],cat:"Statement",p:2,s:"2026-06-15",e:"2026-06-30"},
+  {id:77,name:"Reactivo World Cup",co:["ALL"],cat:"Football",p:1,s:"2026-06-20",e:"2026-07-15"},
+  {id:78,name:"Adistar Squid",co:["MX"],cat:"Running",p:2,s:"2026-07-21",e:"2026-07-21"},
+  {id:79,name:"Emelec Home",co:["LA"],cat:"Football",p:2,s:"2026-05-07",e:"2026-05-07"},
+  {id:80,name:"Kaka Pack",co:["BR"],cat:"Football",p:2,s:"2026-04-22",e:"2026-04-22"},
+  {id:81,name:"Flamengo Away",co:["BR"],cat:"Football",p:1,s:"2026-04-17",e:"2026-04-17"},
+  {id:82,name:"FCF Refresh",co:["CO"],cat:"Football",p:2,s:"2026-04-06",e:"2026-04-30"},
+  {id:83,name:"Hyrox MTY",co:["MX"],cat:"Running",p:2,s:"2026-04-18",e:"2026-04-19"},
+  {id:84,name:"Superstar Push",co:["CL"],cat:"Originals/Skate",p:2,s:"2026-04-20",e:"2026-04-20"},
+];
+
+// ─── CONSTANTS ────────────────────────────────────────────────────────────────
+const CNMS = {AR:"Argentina",BR:"Brazil",CL:"Chile",CO:"Colombia",MX:"Mexico",PE:"Peru",LA:"LADMAR"};
+const ALLCO = ["AR","BR","CL","CO","MX","PE","LA"];
+const ALLCATS = [...new Set(EV.map(e=>e.cat))].sort();
+const CC = {
+  Football:"#78690E",Statement:"#7F1D1D","Originals/Skate":"#4C1D95",Motorsport:"#7C2D12",
+  Training:"#0C4A6E",Outdoor:"#064E3B","Cross-Category":"#374151",Sportswear:"#1E3A5F",
+  Basketball:"#1E3A8A",SPSP:"#7F1D1D",Membership:"#44403C",Promo:"#7C2D12",Running:"#14532D"
+};
+const CBG = {
+  Football:"#FEF9C3",Statement:"#FEE2E2","Originals/Skate":"#EDE9FE",Motorsport:"#FFEDD5",
+  Training:"#E0F2FE",Outdoor:"#D1FAE5","Cross-Category":"#F3F4F6",Sportswear:"#DBEAFE",
+  Basketball:"#DBEAFE",SPSP:"#FEE2E2",Membership:"#F5F0EB",Promo:"#FED7AA",Running:"#DCFCE7"
+};
+const WEEKS = [
+  {id:"W14",label:"W14 · 30 Mar–5 Abr",s:"2026-03-30",e:"2026-04-05"},
+  {id:"W15",label:"W15 · 6–12 Abr",s:"2026-04-06",e:"2026-04-12"},
+  {id:"W16",label:"W16 · 13–19 Abr",s:"2026-04-13",e:"2026-04-19"},
+  {id:"W17",label:"W17 · 20–26 Abr",s:"2026-04-20",e:"2026-04-26"},
+  {id:"W18",label:"W18 · 27 Abr–3 May",s:"2026-04-27",e:"2026-05-03"},
+  {id:"W19",label:"W19 · 4–10 May",s:"2026-05-04",e:"2026-05-10"},
+  {id:"W20",label:"W20 · 11–17 May",s:"2026-05-11",e:"2026-05-17"},
+  {id:"W21",label:"W21 · 18–24 May",s:"2026-05-18",e:"2026-05-24"},
+  {id:"W22",label:"W22 · 25–31 May",s:"2026-05-25",e:"2026-05-31"},
+  {id:"W23",label:"W23 · 1–7 Jun",s:"2026-06-01",e:"2026-06-07"},
+  {id:"W24",label:"W24 · 8–14 Jun",s:"2026-06-08",e:"2026-06-14"},
+  {id:"W25",label:"W25 · 15–21 Jun",s:"2026-06-15",e:"2026-06-21"},
+  {id:"W26",label:"W26 · 22–28 Jun",s:"2026-06-22",e:"2026-06-28"},
+  {id:"W27",label:"W27 · 29 Jun–5 Jul",s:"2026-06-29",e:"2026-07-05"},
+];
+const EXCL = [1,2,77]; // Long-running umbrella campaigns excluded from overlap check
+const ML = {"2026-03":"Marzo","2026-04":"Abril","2026-05":"Mayo","2026-06":"Junio","2026-07":"Julio"};
+const TLS = new Date("2026-04-01"), TLE = new Date("2026-07-31");
+const TLDAYS = (TLE - TLS)/86400000 + 1;
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let sC="ALL", sCat="ALL", sP="ALL", sV="list";
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+const D = s => new Date(s);
+const OVL = (s1,e1,s2,e2) => D(s1)<=D(e2) && D(s2)<=D(e1);
+const fmt = s => D(s).toLocaleDateString("es-ES",{day:"numeric",month:"short"});
+const tp = ds => {
+  const dt = new Date(Math.max(TLS,Math.min(TLE,D(ds))));
+  return Math.max(0, Math.min(100, (dt-TLS)/86400000/TLDAYS*100));
+};
+
+function coMatch(ev,c){
+  if(ev.co.includes("ALL")) return true;
+  if(c==="ALL") return true;
+  return ev.co.includes(c);
+}
+function coLabel(ev){
+  if(ev.co.includes("ALL")) return "Todos los países";
+  return ev.co.map(c=>CNMS[c]||c).join(", ");
+}
+function getFiltered(){
+  return EV.filter(ev=>coMatch(ev,sC)&&(sCat==="ALL"||ev.cat===sCat)&&(sP==="ALL"||ev.p===sP))
+    .sort((a,b)=>D(a.s)-D(b.s));
+}
+function detectOverlaps(evs){
+  const checks = evs.filter(e=>!EXCL.includes(e.id));
+  const alerts=[], seen=new Set();
+  const countries = sC==="ALL"?ALLCO:[sC];
+  WEEKS.forEach(wk=>{
+    countries.forEach(c=>{
+      const ap1 = checks.filter(ev=>coMatch(ev,c)&&ev.p===1&&OVL(ev.s,ev.e,wk.s,wk.e));
+      const ap2 = checks.filter(ev=>coMatch(ev,c)&&ev.p===2&&OVL(ev.s,ev.e,wk.s,wk.e));
+      if(ap1.length>1){const k=wk.id+c+"p1";if(!seen.has(k)){seen.add(k);alerts.push({sev:"danger",msg:`${wk.id} · ${CNMS[c]}: ${ap1.length} campañas P1 simultáneas (máx. 1)`,detail:ap1.map(e=>e.name).join("  ·  ")});}}
+      if(ap2.length>2){const k=wk.id+c+"p2";if(!seen.has(k)){seen.add(k);alerts.push({sev:"warning",msg:`${wk.id} · ${CNMS[c]}: ${ap2.length} campañas P2 simultáneas (máx. 2)`,detail:ap2.map(e=>e.name).join("  ·  ")});}}
+    });
+  });
+  return alerts.slice(0,25);
+}
+
+// ─── RENDER FILTERS ──────────────────────────────────────────────────────────
+function renderFilters(evs){
+  // Country
+  const fc = document.getElementById("f-country");
+  fc.innerHTML = "";
+  [["ALL","Todos los países"],...ALLCO.map(c=>[c,CNMS[c]])].forEach(([v,l])=>{
+    const cnt = EV.filter(ev=>coMatch(ev,v)).length;
+    const b = document.createElement("button");
+    b.className = "chip"+(sC===v?" on":"");
+    b.innerHTML = `<span>${l}</span><span class="count">${cnt}</span>`;
+    b.onclick = ()=>{sC=v;render();};
+    fc.appendChild(b);
+  });
+  // Category
+  const fcat = document.getElementById("f-category");
+  fcat.innerHTML = "";
+  const allCatBtn = document.createElement("button");
+  allCatBtn.className = "chip"+(sCat==="ALL"?" on":"");
+  allCatBtn.innerHTML = `<span>Todas</span><span class="count">${EV.length}</span>`;
+  allCatBtn.onclick = ()=>{sCat="ALL";render();};
+  fcat.appendChild(allCatBtn);
+  ALLCATS.forEach(c=>{
+    const cnt = EV.filter(e=>e.cat===c).length;
+    const b = document.createElement("button");
+    b.className = "chip"+(sCat===c?" on":"");
+    const dot = document.createElement("span");
+    dot.className = "dot";
+    dot.style.background = CC[c]||"#666";
+    b.appendChild(dot);
+    b.appendChild(Object.assign(document.createElement("span"),{textContent:c}));
+    const cntEl = document.createElement("span");
+    cntEl.className = "count";
+    cntEl.textContent = cnt;
+    b.appendChild(cntEl);
+    b.onclick = ()=>{sCat=c;render();};
+    fcat.appendChild(b);
+  });
+  // Priority
+  const fp = document.getElementById("f-priority");
+  fp.innerHTML = "";
+  [["ALL","Todas"],[1,"Prioridad 1"],[2,"Prioridad 2"]].forEach(([v,l])=>{
+    const b = document.createElement("button");
+    b.className = "chip"+(sP===v?" on":"");
+    b.textContent = l;
+    b.onclick = ()=>{sP=v;render();};
+    fp.appendChild(b);
+  });
+  // Legend
+  const leg = document.getElementById("legend");
+  leg.innerHTML = ALLCATS.map(c=>`
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div style="width:10px;height:10px;border-radius:2px;background:${CC[c]||'#888'};flex-shrink:0;"></div>
+      <div style="font-size:12px;color:var(--text-muted);">${c}</div>
+    </div>`).join("");
+}
+
+// ─── RENDER STATS ─────────────────────────────────────────────────────────────
+function renderStats(evs,alts){
+  const p1=evs.filter(e=>e.p===1).length, p2=evs.filter(e=>e.p===2).length;
+  const danger=alts.filter(a=>a.sev==="danger").length, warn=alts.filter(a=>a.sev==="warning").length;
+  document.getElementById("stats").innerHTML = `
+    <div class="stat-card"><div class="stat-label">Total campañas</div><div class="stat-value">${evs.length}</div></div>
+    <div class="stat-card"><div class="stat-label">Prioridad 1</div><div class="stat-value">${p1}</div></div>
+    <div class="stat-card"><div class="stat-label">Prioridad 2</div><div class="stat-value">${p2}</div></div>
+    <div class="stat-card${alts.length?" warn":""}">
+      <div class="stat-label">Conflictos detectados</div>
+      <div class="stat-value">${danger>0?danger:""}${warn>0?` +${warn}`:""}${!alts.length?"0":""}</div>
+    </div>`;
+}
+
+// ─── RENDER ALERTS ───────────────────────────────────────────────────────────
+function renderAlerts(alts){
+  const badge = document.getElementById("ovlp-badge");
+  const el = document.getElementById("alerts");
+  badge.style.display = alts.length?"block":"none";
+  badge.textContent = `${alts.length} conflictos`;
+  if(!alts.length){el.innerHTML="";return;}
+  const byType = {danger:alts.filter(a=>a.sev==="danger"),warning:alts.filter(a=>a.sev==="warning")};
+  let html="";
+  if(byType.danger.length){
+    html+=`<div class="alert-box danger">
+      <div class="alert-head danger">
+        <div class="alert-head-icon danger">!</div>
+        <div class="alert-head-text">${byType.danger.length} violacion${byType.danger.length>1?"es":""} de regla P1 — máx. 1 campaña P1 por semana</div>
+      </div>
+      ${byType.danger.map(a=>`<div class="alert-row danger"><div class="alert-row-title">${a.msg}</div><div class="alert-row-detail">${a.detail}</div></div>`).join("")}
+    </div>`;
+  }
+  if(byType.warning.length){
+    html+=`<div class="alert-box warning">
+      <div class="alert-head warning">
+        <div class="alert-head-icon warning">!</div>
+        <div class="alert-head-text alert-head-text warning">${byType.warning.length} violacion${byType.warning.length>1?"es":""} de regla P2 — máx. 2 campañas P2 por semana</div>
+      </div>
+      ${byType.warning.map(a=>`<div class="alert-row warning"><div class="alert-row-title">${a.msg}</div><div class="alert-row-detail">${a.detail}</div></div>`).join("")}
+    </div>`;
+  }
+  el.innerHTML = html;
+}
+
+// ─── RENDER LIST ─────────────────────────────────────────────────────────────
+function renderList(evs){
+  const byMonth={};
+  evs.forEach(ev=>{const m=ev.s.slice(0,7);if(!byMonth[m])byMonth[m]=[];byMonth[m].push(ev);});
+  const content = Object.entries(byMonth).sort().map(([m,evs2])=>`
+    <div class="month-group">
+      <div class="month-heading">${ML[m]||m}</div>
+      ${evs2.map(ev=>{
+        const clr=CC[ev.cat]||"#555";
+        const bg=CBG[ev.cat]||"#F3F4F6";
+        const dr=ev.s===ev.e?fmt(ev.s):`${fmt(ev.s)} → ${fmt(ev.e)}`;
+        return `<div class="event-card">
+          <div class="event-stripe" style="background:${clr};"></div>
+          <div style="flex:1;min-width:0;">
+            <div class="event-name">${ev.name}</div>
+            <div class="event-meta" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">
+              <span>${dr}</span>
+              <span class="event-cat" style="background:${bg};color:${clr};">${ev.cat}</span>
+              <span style="color:var(--text-faint);">${coLabel(ev)}</span>
+            </div>
+          </div>
+          <div class="event-right">
+            <span class="event-p p${ev.p}">P${ev.p}</span>
+          </div>
+        </div>`;
+      }).join("")}
+    </div>`).join("");
+  document.getElementById("content").innerHTML = content||`<div style="padding:40px;text-align:center;color:var(--text-muted);font-size:14px;">Sin campañas con los filtros seleccionados</div>`;
+}
+
+// ─── RENDER WEEKLY ────────────────────────────────────────────────────────────
+function renderWeekly(evs){
+  const html = WEEKS.map(wk=>{
+    const active = evs.filter(ev=>OVL(ev.s,ev.e,wk.s,wk.e));
+    const checks = active.filter(e=>!EXCL.includes(e.id));
+    const p1=checks.filter(e=>e.p===1).length, p2=checks.filter(e=>e.p===2).length;
+    const viol = p1>1||p2>2;
+    const pills = active.map(ev=>{
+      const clr=CC[ev.cat]||"#555"; const bg=CBG[ev.cat]||"#F3F4F6";
+      return `<div class="event-pill" style="background:${bg};border-color:${clr}44;color:${clr};">
+        <span style="font-size:10px;font-weight:700;">P${ev.p}</span>
+        <span>${ev.name}</span>
+      </div>`;
+    }).join("");
+    return `<div class="week-card${viol?" conflict":""}">
+      <div class="week-head">
+        <div class="week-id">${wk.id}</div>
+        <div class="week-dates">${wk.label}</div>
+        <div class="week-counts">P1: ${p1} · P2: ${p2} · Total: ${active.length}</div>
+        ${viol?`<div class="week-flag">Conflicto</div>`:""}
+      </div>
+      <div class="week-body">${pills||`<span style="font-size:12px;color:var(--text-faint);">Sin campañas activas</span>`}</div>
+    </div>`;
+  }).join("");
+  document.getElementById("content").innerHTML = `
+    <div style="margin-bottom:12px;font-size:13px;color:var(--text-muted);">Vista por semana · ${sC==="ALL"?"Todos los países":CNMS[sC]||sC} · Regla: máx. 1xP1 y 2xP2 por semana.</div>
+    ${html}`;
+}
+
+// ─── RENDER TIMELINE ──────────────────────────────────────────────────────────
+function renderTimeline(evs){
+  const bycat={};
+  evs.forEach(ev=>{if(!bycat[ev.cat])bycat[ev.cat]=[];bycat[ev.cat].push(ev);});
+  
+  const MONTHS=[
+    {l:"Abril",s:"2026-04-01",e:"2026-04-30"},
+    {l:"Mayo",s:"2026-05-01",e:"2026-05-31"},
+    {l:"Junio",s:"2026-06-01",e:"2026-06-30"},
+    {l:"Julio",s:"2026-07-01",e:"2026-07-31"},
+  ];
+  const mCells = MONTHS.map(m=>{
+    const l=tp(m.s), w=tp(m.e)-l;
+    return `<div class="timeline-month-cell" style="width:${w.toFixed(2)}%;">${m.l}</div>`;
+  }).join("");
+
+  const lanes = Object.entries(bycat).sort().map(([cat,evs2])=>{
+    const sorted=[...evs2].sort((a,b)=>D(a.s)-D(b.s));
+    const tracks=[];
+    sorted.forEach(ev=>{
+      let placed=false;
+      for(let t=0;t<tracks.length;t++){
+        const last=tracks[t][tracks[t].length-1];
+        if(!OVL(ev.s,ev.e,last.s,last.e)){tracks[t].push(ev);ev._tr=t;placed=true;break;}
+      }
+      if(!placed){ev._tr=tracks.length;tracks.push([ev]);}
+    });
+    const H=Math.max(30,tracks.length*24+8);
+    const clr=CC[cat]||"#555";
+    const bg=CBG[cat]||"#F3F4F6";
+    const bars=sorted.map(ev=>{
+      const l=tp(ev.s), r=100-tp(ev.e), w=Math.max(.5,100-l-r);
+      const y=ev._tr*24+4;
+      return `<div class="tbar" title="${ev.name}\n${fmt(ev.s)}${ev.s!==ev.e?" → "+fmt(ev.e):""}\nPrioridad ${ev.p}"
+        style="left:${l.toFixed(2)}%;width:${w.toFixed(2)}%;top:${y}px;background:${bg};border-left:3px solid ${clr};">
+        <div class="tbar-label" style="color:${clr};">${ev.name}</div>
+      </div>`;
+    }).join("");
+    return `<div class="timeline-row">
+      <div class="timeline-cat">${cat}</div>
+      <div class="timeline-lane" style="height:${H}px;">${bars}</div>
+    </div>`;
+  }).join("");
+
+  document.getElementById("content").innerHTML = `
+    <div class="timeline-wrap">
+      <div class="timeline-header">
+        <div style="font-size:13px;font-weight:600;color:var(--text);">Abril – Julio 2026</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Hover sobre las barras para ver detalles</div>
+      </div>
+      <div class="timeline-row">
+        <div class="timeline-cat" style="font-size:10px;color:var(--text-faint);padding-right:10px;">Categoría</div>
+        <div style="flex:1;display:flex;border-left:1px solid var(--border);">${mCells}</div>
+      </div>
+      ${lanes}
+    </div>`;
+}
+
+// ─── VIEW SWITCH ─────────────────────────────────────────────────────────────
+function setView(v){
+  sV=v;
+  document.querySelectorAll(".view-tab").forEach(t=>t.classList.toggle("on",t.dataset.v===v));
+  render();
+}
+
+// ─── MAIN RENDER ─────────────────────────────────────────────────────────────
+function render(){
+  const evs=getFiltered();
+  const alts=detectOverlaps(evs);
+  renderFilters(evs);
+  renderStats(evs,alts);
+  renderAlerts(alts);
+  if(sV==="list") renderList(evs);
+  else if(sV==="weekly") renderWeekly(evs);
+  else if(sV==="timeline") renderTimeline(evs);
+}
+
+render();
+</script>
+</body>
+</html>
