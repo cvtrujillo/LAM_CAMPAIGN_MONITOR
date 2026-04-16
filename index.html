@@ -334,7 +334,7 @@ const TLS = new Date("2026-04-01"), TLE = new Date("2026-07-31");
 const TLDAYS = (TLE - TLS)/86400000 + 1;
 
 // ─── STATE ────────────────────────────────────────────────────────────────────
-let sC="ALL", sCat="ALL", sP="ALL", sV="list";
+let sCs=[], sCats=[], sP="ALL", sV="list";   // [] = "todos" (sin filtro activo)
 let sDateFrom="", sDateTo="";
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
@@ -346,25 +346,30 @@ const tp = ds => {
   return Math.max(0, Math.min(100, (dt-TLS)/86400000/TLDAYS*100));
 };
 
-function coMatch(ev,c){
+function evMatchesCountry(ev, cs){
+  // cs = [] means "all"
+  if(!cs.length) return true;
   if(ev.co.includes("ALL")) return true;
-  if(c==="ALL") return true;
-  return ev.co.includes(c);
+  return cs.some(c=>ev.co.includes(c));
 }
 function coLabel(ev){
   if(ev.co.includes("ALL")) return "Todos los países";
   return ev.co.map(c=>CNMS[c]||c).join(", ");
 }
+// Legacy helper kept for overlap detection
+function coMatch(ev,c){
+  if(ev.co.includes("ALL")) return true;
+  if(c==="ALL") return true;
+  return ev.co.includes(c);
+}
 function getFiltered(){
   return EV.filter(ev=>{
-    if(!coMatch(ev,sC)) return false;
-    if(sCat!=="ALL" && ev.cat!==sCat) return false;
+    if(!evMatchesCountry(ev,sCs)) return false;
+    if(sCats.length && !sCats.includes(ev.cat)) return false;
     if(sP!=="ALL" && ev.p!==sP) return false;
-    // Date filter
     if(sDateFrom){
-      const from = sDateFrom;
-      const to   = sDateTo || sDateFrom; // if no end, treat as single day
-      if(!OVL(ev.s, ev.e, from, to)) return false;
+      const to = sDateTo||sDateFrom;
+      if(!OVL(ev.s,ev.e,sDateFrom,to)) return false;
     }
     return true;
   }).sort((a,b)=>D(a.s)-D(b.s));
@@ -372,7 +377,7 @@ function getFiltered(){
 function detectOverlaps(evs){
   const checks = evs.filter(e=>!EXCL.includes(e.id));
   const alerts=[], seen=new Set();
-  const countries = sC==="ALL"?ALLCO:[sC];
+  const countries = sCs.length ? sCs : ALLCO;
   WEEKS.forEach(wk=>{
     countries.forEach(c=>{
       const ap1 = checks.filter(ev=>coMatch(ev,c)&&ev.p===1&&OVL(ev.s,ev.e,wk.s,wk.e));
@@ -433,30 +438,48 @@ function renderDateBanner(evs){
 }
 
 // ─── RENDER FILTERS ──────────────────────────────────────────────────────────
-function renderFilters(evs){
-  // Country
+function toggle(arr, val){
+  const i = arr.indexOf(val);
+  if(i===-1) arr.push(val); else arr.splice(i,1);
+}
+
+function renderFilters(){
+  // ── Country ──
   const fc = document.getElementById("f-country");
   fc.innerHTML = "";
-  [["ALL","Todos los países"],...ALLCO.map(c=>[c,CNMS[c]])].forEach(([v,l])=>{
-    const cnt = EV.filter(ev=>coMatch(ev,v)).length;
-    const b = document.createElement("button");
-    b.className = "chip"+(sC===v?" on":"");
-    b.innerHTML = `<span>${l}</span><span class="count">${cnt}</span>`;
-    b.onclick = ()=>{sC=v;render();};
+
+  // "Todos" chip — clears selection
+  const allC = document.createElement("button");
+  allC.className = "chip" + (!sCs.length ? " on" : "");
+  allC.innerHTML = `<span>Todos</span><span class="count">${EV.length}</span>`;
+  allC.onclick = ()=>{ sCs=[]; render(); };
+  fc.appendChild(allC);
+
+  ALLCO.forEach(c=>{
+    const cnt = EV.filter(ev=>coMatch(ev,c)).length;
+    const on  = sCs.includes(c);
+    const b   = document.createElement("button");
+    b.className = "chip" + (on ? " on" : "");
+    b.innerHTML = `<span>${CNMS[c]}</span><span class="count">${cnt}</span>`;
+    b.onclick = ()=>{ toggle(sCs,c); render(); };
     fc.appendChild(b);
   });
-  // Category
+
+  // ── Category ──
   const fcat = document.getElementById("f-category");
   fcat.innerHTML = "";
-  const allCatBtn = document.createElement("button");
-  allCatBtn.className = "chip"+(sCat==="ALL"?" on":"");
-  allCatBtn.innerHTML = `<span>Todas</span><span class="count">${EV.length}</span>`;
-  allCatBtn.onclick = ()=>{sCat="ALL";render();};
-  fcat.appendChild(allCatBtn);
+
+  const allCat = document.createElement("button");
+  allCat.className = "chip" + (!sCats.length ? " on" : "");
+  allCat.innerHTML = `<span>Todas</span><span class="count">${EV.length}</span>`;
+  allCat.onclick = ()=>{ sCats=[]; render(); };
+  fcat.appendChild(allCat);
+
   ALLCATS.forEach(c=>{
     const cnt = EV.filter(e=>e.cat===c).length;
-    const b = document.createElement("button");
-    b.className = "chip"+(sCat===c?" on":"");
+    const on  = sCats.includes(c);
+    const b   = document.createElement("button");
+    b.className = "chip" + (on ? " on" : "");
     const dot = document.createElement("span");
     dot.className = "dot";
     dot.style.background = CC[c]||"#666";
@@ -466,10 +489,11 @@ function renderFilters(evs){
     cntEl.className = "count";
     cntEl.textContent = cnt;
     b.appendChild(cntEl);
-    b.onclick = ()=>{sCat=c;render();};
+    b.onclick = ()=>{ toggle(sCats,c); render(); };
     fcat.appendChild(b);
   });
-  // Priority
+
+  // ── Priority ──
   const fp = document.getElementById("f-priority");
   fp.innerHTML = "";
   [["ALL","Todas"],[1,"Prioridad 1"],[2,"Prioridad 2"]].forEach(([v,l])=>{
@@ -479,7 +503,8 @@ function renderFilters(evs){
     b.onclick = ()=>{sP=v;render();};
     fp.appendChild(b);
   });
-  // Legend
+
+  // ── Legend ──
   const leg = document.getElementById("legend");
   leg.innerHTML = ALLCATS.map(c=>`
     <div style="display:flex;align-items:center;gap:8px;">
@@ -589,8 +614,11 @@ function renderWeekly(evs){
       <div class="week-body">${pills||`<span style="font-size:12px;color:var(--text-faint);">Sin campañas activas</span>`}</div>
     </div>`;
   }).join("");
+  const coLabel2 = sCs.length===0 ? "Todos los países"
+    : sCs.length===1 ? CNMS[sCs[0]]
+    : sCs.map(c=>CNMS[c]).join(", ");
   document.getElementById("content").innerHTML = `
-    <div style="margin-bottom:12px;font-size:13px;color:var(--text-muted);">Vista por semana · ${sC==="ALL"?"Todos los países":CNMS[sC]||sC} · Regla: máx. 1xP1 y 2xP2 por semana.</div>
+    <div style="margin-bottom:12px;font-size:13px;color:var(--text-muted);">Vista por semana · ${coLabel2} · Regla: máx. 1xP1 y 2xP2 por semana.</div>
     ${html}`;
 }
 
@@ -663,7 +691,7 @@ function setView(v){
 function render(){
   const evs=getFiltered();
   const alts=detectOverlaps(evs);
-  renderFilters(evs);
+  renderFilters();
   renderDateBanner(evs);
   renderStats(evs,alts);
   renderAlerts(alts);
