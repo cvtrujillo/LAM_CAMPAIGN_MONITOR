@@ -129,6 +129,49 @@
   .event-card.date-highlight{border-color:#93C5FD;background:#EFF6FF;}
   .event-card.date-highlight .event-name{color:#1E40AF;}
 
+  /* ── New+ button ─────────────────────────────────────────── */
+  .btn-new{padding:6px 14px;border:1px solid rgba(255,255,255,.35);border-radius:var(--radius);background:transparent;color:#fff;font-family:'Barlow',sans-serif;font-size:13px;font-weight:600;cursor:pointer;letter-spacing:.03em;transition:background .1s;white-space:nowrap;}
+  .btn-new:hover{background:rgba(255,255,255,.18);}
+
+  /* ── Modal ───────────────────────────────────────────────── */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;}
+  .modal-overlay.hidden{display:none;}
+  .modal{background:var(--surface);border-radius:var(--radius-lg);width:100%;max-width:520px;max-height:92vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.22);}
+  .modal-header{padding:22px 24px 0;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+  .modal-title{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;}
+  .modal-title-sub{font-size:12px;color:var(--text-muted);margin-top:2px;letter-spacing:.02em;}
+  .modal-close{width:32px;height:32px;border:none;background:transparent;cursor:pointer;font-size:22px;color:var(--text-muted);border-radius:var(--radius);line-height:1;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .modal-close:hover{background:#F3F4F6;color:var(--text);}
+  .modal-divider{height:1px;background:var(--border);margin:16px 0 0;}
+  .modal-body{padding:20px 24px;}
+  .modal-footer{padding:14px 24px 20px;display:flex;align-items:center;gap:10px;border-top:1px solid var(--border);}
+  /* Form elements */
+  .fg{margin-bottom:18px;}
+  .fg:last-child{margin-bottom:0;}
+  .fg-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;}
+  .fl{display:block;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);margin-bottom:7px;}
+  .fl .req{color:#EF4444;margin-left:2px;}
+  .fi{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:var(--radius);font-family:'Barlow',sans-serif;font-size:14px;color:var(--text);background:var(--surface);outline:none;transition:border-color .15s,box-shadow .15s;appearance:auto;}
+  .fi:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,0,0,.06);}
+  .fi.err{border-color:#EF4444;box-shadow:0 0 0 3px rgba(239,68,68,.08);}
+  /* Country grid */
+  .country-grid{display:flex;flex-wrap:wrap;gap:6px;}
+  .ctry-btn{padding:5px 13px;border:1.5px solid var(--border);border-radius:10px;background:transparent;font-family:'Barlow',sans-serif;font-size:13px;font-weight:500;color:var(--text-muted);cursor:pointer;transition:all .12s;user-select:none;}
+  .ctry-btn:hover{border-color:var(--border-strong);color:var(--text);}
+  .ctry-btn.sel{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .ctry-all-row{margin-top:8px;display:flex;align-items:center;gap:8px;}
+  .ctry-all-label{font-size:13px;color:var(--text-muted);cursor:pointer;display:flex;align-items:center;gap:6px;user-select:none;}
+  .country-grid.err .ctry-btn:not(.sel){border-color:#FCA5A5;}
+  /* Form actions */
+  .form-err{flex:1;font-size:12px;color:#EF4444;font-weight:600;line-height:1.4;}
+  .btn-cancel{padding:9px 18px;border:1.5px solid var(--border);border-radius:var(--radius);background:transparent;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text-muted);cursor:pointer;font-weight:500;transition:background .1s;}
+  .btn-cancel:hover{background:#F3F4F6;color:var(--text);}
+  .btn-submit{margin-left:auto;padding:9px 22px;border:none;border-radius:var(--radius);background:var(--accent);font-family:'Barlow',sans-serif;font-size:13px;color:#fff;cursor:pointer;font-weight:600;transition:background .1s;}
+  .btn-submit:hover{background:#374151;}
+  /* Toast */
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 20px;border-radius:var(--radius);font-size:13px;font-weight:500;z-index:300;opacity:0;pointer-events:none;transition:opacity .25s;}
+  .toast.show{opacity:1;pointer-events:auto;}
+
   /* Mobile */
   @media(max-width:768px){
     .layout{flex-direction:column;}
@@ -147,6 +190,7 @@
   <div class="topbar-sep">|</div>
   <div class="topbar-title">LAM Campaign Monitor · Q2 2026</div>
   <div id="ovlp-badge" class="topbar-badge"></div>
+  <button class="btn-new" onclick="openModal()">New +</button>
 </div>
 
 <div class="layout">
@@ -208,6 +252,88 @@
   </main>
 
 </div>
+
+<!-- MODAL -->
+<div id="modal-overlay" class="modal-overlay hidden" onmousedown="overlayDismiss(event)">
+  <div class="modal" onmousedown="event.stopPropagation()">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Nueva Campaña</div>
+        <div class="modal-title-sub">Completa los campos para agregar una campaña al calendario</div>
+      </div>
+      <button class="modal-close" onclick="closeModal()" title="Cerrar">&#215;</button>
+    </div>
+    <div class="modal-divider"></div>
+    <div class="modal-body">
+
+      <div class="fg">
+        <label class="fl" for="nf-name">Nombre de campaña <span class="req">*</span></label>
+        <input class="fi" type="text" id="nf-name" placeholder="Ej. Summer Drop 2026" maxlength="120" autocomplete="off"/>
+      </div>
+
+      <div class="fg-row">
+        <div>
+          <label class="fl" for="nf-start">Fecha inicio <span class="req">*</span></label>
+          <input class="fi" type="date" id="nf-start" onchange="syncEndMin()"/>
+        </div>
+        <div>
+          <label class="fl" for="nf-end">Fecha fin <span class="req">*</span></label>
+          <input class="fi" type="date" id="nf-end"/>
+        </div>
+      </div>
+
+      <div class="fg">
+        <label class="fl" for="nf-prio">Prioridad <span class="req">*</span></label>
+        <select class="fi" id="nf-prio">
+          <option value="">Seleccionar prioridad…</option>
+          <option value="1">P1 — Alta prioridad</option>
+          <option value="2">P2 — Media prioridad</option>
+          <option value="3">P3 — Baja prioridad</option>
+        </select>
+      </div>
+
+      <div class="fg">
+        <label class="fl">País <span class="req">*</span></label>
+        <div class="country-grid" id="nf-countries"></div>
+        <div class="ctry-all-row">
+          <label class="ctry-all-label">
+            <input type="checkbox" id="nf-all-countries" onchange="onToggleAll()"/>
+            Todos los países (LAM)
+          </label>
+        </div>
+      </div>
+
+      <div class="fg">
+        <label class="fl" for="nf-cat">Categoría <span class="req">*</span></label>
+        <select class="fi" id="nf-cat">
+          <option value="">Seleccionar categoría…</option>
+          <option>Basketball</option>
+          <option>Cross-Category</option>
+          <option>Football</option>
+          <option>Membership</option>
+          <option>Motorsport</option>
+          <option>Originals/Skate</option>
+          <option>Outdoor</option>
+          <option>Promo</option>
+          <option>Running</option>
+          <option>SPSP</option>
+          <option>Sportswear</option>
+          <option>Statement</option>
+          <option>Training</option>
+        </select>
+      </div>
+
+    </div><!-- .modal-body -->
+    <div class="modal-footer">
+      <div class="form-err" id="nf-error"></div>
+      <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="btn-submit" onclick="submitNewEvent()">Crear campaña</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
 
 <script>
 // ─── DATA ────────────────────────────────────────────────────────────────────
@@ -299,8 +425,8 @@ const EV = [
 ];
 
 // ─── CONSTANTS ────────────────────────────────────────────────────────────────
-const CNMS = {AR:"Argentina",BR:"Brazil",CL:"Chile",CO:"Colombia",MX:"Mexico",PE:"Peru",LA:"LADMAR"};
-const ALLCO = ["AR","BR","CL","CO","MX","PE","LA"];
+const CNMS = {AR:"Argentina",BR:"Brazil",CL:"Chile",CO:"Colombia",MX:"Mexico",PE:"Peru",LA:"LADMAR",EC:"Ecuador",CR:"Costa Rica"};
+const ALLCO = ["AR","BR","CL","CO","MX","PE","LA","EC","CR"];
 const ALLCATS = [...new Set(EV.map(e=>e.cat))].sort();
 const CC = {
   Football:"#78690E",Statement:"#7F1D1D","Originals/Skate":"#4C1D95",Motorsport:"#7C2D12",
@@ -496,7 +622,7 @@ function renderFilters(){
   // ── Priority ──
   const fp = document.getElementById("f-priority");
   fp.innerHTML = "";
-  [["ALL","Todas"],[1,"Prioridad 1"],[2,"Prioridad 2"]].forEach(([v,l])=>{
+  [["ALL","Todas"],[1,"P1 — Alta"],[2,"P2 — Media"],[3,"P3 — Baja"]].forEach(([v,l])=>{
     const b = document.createElement("button");
     b.className = "chip"+(sP===v?" on":"");
     b.textContent = l;
@@ -701,6 +827,157 @@ function render(){
 }
 
 render();
+
+// ─── PRIORITY FILTER: add P3 ──────────────────────────────────────────────
+// Patched inside renderFilters to handle P3 dynamically via existing logic.
+
+// ─── MODAL ───────────────────────────────────────────────────────────────────
+const FORM_COUNTRIES = [
+  {code:"AR",name:"Argentina"},
+  {code:"CO",name:"Colombia"},
+  {code:"MX",name:"Mexico"},
+  {code:"CL",name:"Chile"},
+  {code:"PE",name:"Peru"},
+  {code:"EC",name:"Ecuador"},
+  {code:"CR",name:"Costa Rica"},
+  {code:"BR",name:"Brazil"},
+  {code:"LA",name:"LADMAR"},
+];
+
+let _selCountries = new Set();
+
+function _buildCountryButtons(){
+  const grid = document.getElementById("nf-countries");
+  grid.innerHTML = "";
+  FORM_COUNTRIES.forEach(({code, name}) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "ctry-btn";
+    b.dataset.code = code;
+    b.textContent = code;
+    b.title = name;
+    b.onclick = () => toggleCountry(code, b);
+    grid.appendChild(b);
+  });
+}
+_buildCountryButtons();
+
+function toggleCountry(code, btn){
+  const allCb = document.getElementById("nf-all-countries");
+  if(allCb.checked){ allCb.checked = false; }
+  if(_selCountries.has(code)){
+    _selCountries.delete(code);
+    btn.classList.remove("sel");
+  } else {
+    _selCountries.add(code);
+    btn.classList.add("sel");
+  }
+  document.getElementById("nf-countries").classList.remove("err");
+}
+
+function onToggleAll(){
+  const checked = document.getElementById("nf-all-countries").checked;
+  if(checked){
+    _selCountries.clear();
+    document.querySelectorAll(".ctry-btn").forEach(b => b.classList.remove("sel"));
+  }
+  document.getElementById("nf-countries").classList.remove("err");
+}
+
+function syncEndMin(){
+  const s = document.getElementById("nf-start").value;
+  const endEl = document.getElementById("nf-end");
+  if(s){
+    endEl.min = s;
+    if(endEl.value && endEl.value < s) endEl.value = s;
+  }
+}
+
+function openModal(){
+  _selCountries.clear();
+  document.getElementById("nf-name").value = "";
+  document.getElementById("nf-start").value = "";
+  document.getElementById("nf-end").value = "";
+  document.getElementById("nf-prio").value = "";
+  document.getElementById("nf-cat").value = "";
+  document.getElementById("nf-all-countries").checked = false;
+  document.getElementById("nf-error").textContent = "";
+  document.querySelectorAll(".ctry-btn").forEach(b => b.classList.remove("sel"));
+  ["nf-name","nf-start","nf-end","nf-prio","nf-cat"].forEach(id =>
+    document.getElementById(id).classList.remove("err")
+  );
+  document.getElementById("nf-countries").classList.remove("err");
+  document.getElementById("modal-overlay").classList.remove("hidden");
+  document.getElementById("nf-name").focus();
+}
+
+function closeModal(){
+  document.getElementById("modal-overlay").classList.add("hidden");
+}
+
+function overlayDismiss(e){
+  if(e.target === document.getElementById("modal-overlay")) closeModal();
+}
+
+function _markErr(id){ document.getElementById(id).classList.add("err"); }
+
+function submitNewEvent(){
+  const name  = document.getElementById("nf-name").value.trim();
+  const start = document.getElementById("nf-start").value;
+  const end   = document.getElementById("nf-end").value;
+  const prio  = document.getElementById("nf-prio").value;
+  const cat   = document.getElementById("nf-cat").value;
+  const allCo = document.getElementById("nf-all-countries").checked;
+
+  // Clear previous errors
+  ["nf-name","nf-start","nf-end","nf-prio","nf-cat"].forEach(id =>
+    document.getElementById(id).classList.remove("err")
+  );
+  document.getElementById("nf-countries").classList.remove("err");
+  document.getElementById("nf-error").textContent = "";
+
+  // Validate
+  const errs = [];
+  if(!name)                          { errs.push("El nombre de campaña es obligatorio."); _markErr("nf-name"); }
+  if(!start)                         { errs.push("Selecciona la fecha de inicio."); _markErr("nf-start"); }
+  if(!end)                           { errs.push("Selecciona la fecha de fin."); _markErr("nf-end"); }
+  if(start && end && end < start)    { errs.push("La fecha de fin debe ser posterior al inicio."); _markErr("nf-end"); }
+  if(!prio)                          { errs.push("Selecciona la prioridad."); _markErr("nf-prio"); }
+  if(!allCo && _selCountries.size===0){ errs.push("Selecciona al menos un país."); document.getElementById("nf-countries").classList.add("err"); }
+  if(!cat)                           { errs.push("Selecciona la categoría."); _markErr("nf-cat"); }
+
+  if(errs.length){
+    document.getElementById("nf-error").textContent = errs[0];
+    return;
+  }
+
+  const newId = Math.max(0, ...EV.map(e => e.id)) + 1;
+  EV.push({
+    id: newId,
+    name,
+    co: allCo ? ["ALL"] : [..._selCountries],
+    cat,
+    p: parseInt(prio),
+    s: start,
+    e: end,
+  });
+
+  closeModal();
+  render();
+  showToast(`Campaña "${name}" creada correctamente.`);
+}
+
+function showToast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 3000);
+}
+
+// Close modal on Escape
+document.addEventListener("keydown", e => {
+  if(e.key === "Escape") closeModal();
+});
 </script>
 </body>
 </html>
